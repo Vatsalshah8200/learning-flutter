@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:page_transition/page_transition.dart';
 import 'widgets/main_widget.dart';
-import 'package:csc_picker/csc_picker.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 class WeatherInfo {
   final String location;
@@ -38,7 +41,27 @@ class WeatherInfo {
   }
 }
 
-void main() => runApp(MyApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  var initializationSettingsAndroid = AndroidInitializationSettings('app_icon');
+  var initializationSettingsIOS = IOSInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+      onDidReceiveLocalNotification:
+          (int id, String? title, String? body, String? payload) async {});
+  var initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+    iOS: initializationSettingsIOS,
+  );
+  flutterLocalNotificationsPlugin.initialize(initializationSettings,
+      onSelectNotification: (String? payload) async {
+    if (payload != null) {
+      debugPrint('notification payload: $payload');
+    }
+  });
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -95,6 +118,7 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
         appBar: AppBar(
           title: Text("Weather XLR8"),
+          backgroundColor: Colors.purple[400],
         ),
         body: SingleChildScrollView(
           child: Container(
@@ -139,8 +163,9 @@ class _MainScreenState extends State<MainScreen> {
                             tempMax: weatherInfo.tempMax,
                             weather: weatherInfo.weather,
                             humidity: weatherInfo.humidity,
-                            windspeed: weatherInfo.windspeed)
-                        : Center(child: Text("Loading...")))
+                            windspeed: weatherInfo.windspeed,
+                          )
+                        : Center(child: Text("Loading..."))),
               ],
             ),
           ),

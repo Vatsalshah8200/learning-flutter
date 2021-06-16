@@ -31,6 +31,14 @@ dependencies:
   animated_splash_screen: ^1.1.0
   http: ^0.13.3
   csc_picker: ^0.2.5
+  flutter_launcher_icons: ^0.9.0
+  flutter_local_notifications: ^6.0.0
+
+flutter_icons:
+  image_path: "assets/ae.png"
+  android: true
+  ios: true
+  
 
 dev_dependencies:
   flutter_test:
