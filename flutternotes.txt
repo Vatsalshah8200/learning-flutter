@@ -1,0 +1,33 @@
+flutter create filename
+
+
+start with MaterialAPP then go with scaffold 
+
+scaffold is like html tag it has like :- https://www.geeksforgeeks.org/scaffold-class-in-flutter-with-examples/
+    AppBar for top title bar 
+    body for genral body
+    drawer for hamburger
+
+method({int ruppes = 100}) === default value if no valu is specified
+method(ruppes:50);
+
+//dark theme
+thememode: thmemode.dark
+darktheme: themedata
+brightness:brightness.dark
+
+Sized box is a blank box genrally used when padding is neede but dont wana use padding
+
+
+
+imp shortcuts 
+ctrl+space - recomended
+ctrl+. - wrapper elements
+
+
+stateless means no change once the screem is rendered
+
+//padding example
+Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 16.0, horizontal: 32.0),

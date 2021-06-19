@@ -43,23 +43,7 @@ class WeatherInfo {
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  var initializationSettingsAndroid = AndroidInitializationSettings('app_icon');
-  var initializationSettingsIOS = IOSInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-      onDidReceiveLocalNotification:
-          (int id, String? title, String? body, String? payload) async {});
-  var initializationSettings = InitializationSettings(
-    android: initializationSettingsAndroid,
-    iOS: initializationSettingsIOS,
-  );
-  flutterLocalNotificationsPlugin.initialize(initializationSettings,
-      onSelectNotification: (String? payload) async {
-    if (payload != null) {
-      debugPrint('notification payload: $payload');
-    }
-  });
+
   runApp(MyApp());
 }
 
@@ -70,7 +54,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Weather XLR8',
         home: AnimatedSplashScreen(
-            duration: 3000,
+            duration: 1000,
             splash: Image.asset('assets/ae.png'),
             nextScreen: MainScreen(),
             splashTransition: SplashTransition.fadeTransition,
@@ -104,6 +88,8 @@ class _MainScreenState extends State<MainScreen> {
     if (response.statusCode == 200) {
       isloaded = true;
       weatherInfo = WeatherInfo.fromJson(jsonDecode(response.body));
+      showOngoingNotification(
+          weatherInfo.location, weatherInfo.temp, weatherInfo.windspeed);
       setState(() {});
     } else {
       throw Exception("Error loading the request");
@@ -113,6 +99,22 @@ class _MainScreenState extends State<MainScreen> {
   String cityName = "bhuj";
 
   TextEditingController contr = new TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    var androidSettings = AndroidInitializationSettings('app_icon');
+    var iOSSettings = IOSInitializationSettings(
+      requestSoundPermission: false,
+      requestBadgePermission: false,
+      requestAlertPermission: false,
+    );
+    var initSetttings =
+        InitializationSettings(android: androidSettings, iOS: iOSSettings);
+    flutterLocalNotificationsPlugin.initialize(
+      initSetttings,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -171,4 +173,36 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ));
   }
+}
+
+// Future<void> showOngoingNotification(location, temp, windspeed) async {
+//   const AndroidNotificationDetails androidNotificationDetails =
+//       AndroidNotificationDetails(
+//           'channel_id', 'Channel Name', 'Channel Description',
+//           importance: Importance.high,
+//           priority: Priority.high,
+//           ongoing: true,
+//           autoCancel: false);
+//   const NotificationDetails notificationDetails =
+//       NotificationDetails(android: androidNotificationDetails, iOS: null);
+//   await flutterLocalNotificationsPlugin.show(
+//     0,
+//     location.toString(),
+//     temp.toString(),
+//     notificationDetails,
+//   );
+// }
+
+Future<void> showOngoingNotification(location, temp, windspeed) async {
+  const AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails(
+          'your channel id', 'your channel name', 'your channel description',
+          importance: Importance.max,
+          priority: Priority.high,
+          ongoing: true,
+          autoCancel: false);
+  const NotificationDetails platformChannelSpecifics =
+      NotificationDetails(android: androidPlatformChannelSpecifics);
+  await flutterLocalNotificationsPlugin.show(
+      0, location.toString(), temp.toString(), platformChannelSpecifics);
 }
